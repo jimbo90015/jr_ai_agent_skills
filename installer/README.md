@@ -1,6 +1,6 @@
-# AI Session Auto-Rename + Terminal Tab Sync — Installer
+# AI Agent Workshop Skills — Installer
 
-一鍵讓 **Claude Code** 和 **Codex CLI** 的 session 自動命名，並同步到 terminal tab title。
+一鍵替 **Claude Code** 和 **Codex CLI** 安裝 `auto-rename`、`handoff`、`structured-questions`，並設定 session 自動命名與 terminal tab title 同步。
 支援 iTerm2 / Terminal.app / Cursor / Antigravity（VS Code forks）。macOS / Linux。
 
 ## 安裝
@@ -53,8 +53,12 @@ cd jr_ai_agent_skills/installer
 | `~/.local/bin/mycodex` | Codex wrapper（sync file + watcher） |
 | `~/.claude/hooks/session-auto-namer.sh` | Claude Code 自動命名 hook（註冊進 settings.json） |
 | `~/.claude/skills/auto-rename/SKILL.md` | `/auto-rename` 手動命名 skill |
+| `~/.claude/skills/handoff/SKILL.md` | `/handoff` 交接文件 skill |
+| `~/.claude/skills/structured-questions/SKILL.md` | 結構化決策提問 skill |
 | `~/.codex/hooks/codex-session-namer.sh` | Codex 自動命名 hook（註冊進 hooks.json） |
 | `~/.codex/skills/auto-rename/SKILL.md` | `$auto-rename` 手動命名 skill |
+| `~/.codex/skills/handoff/SKILL.md` | `$handoff` 交接文件 skill |
+| `~/.codex/skills/structured-questions/SKILL.md` | 結構化決策提問 skill |
 
 ## 不用 wrapper 也能動（degraded mode）
 
