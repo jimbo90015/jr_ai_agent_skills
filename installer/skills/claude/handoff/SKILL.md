@@ -71,8 +71,9 @@ gh pr list --state open --head "$(git branch --show-current)" --json number,titl
 - **已知問題**：如果有的話
 
 路徑規則：
-- 文件「內部」引用的路徑一律用 repo-relative（`docs/handoff/...`），禁止帶 `.worktrees/` 前綴（Step 5 回報的起始 prompt 例外，用絕對路徑）
+- 文件「內部」引用的路徑一律用 repo-relative（`docs/handoff/...`），不要寫 worktree 或主 checkout 的絕對路徑
 - 若檔案只存在於特定 branch，標注 `(branch: {name})`
+- Step 5 回報的 `{abs_path}` 必須指向交接文件實際所在的 checkout；在 worktree 工作時，不能改指主 checkout
 
 ✅ DO: 用具體的 PR 號碼、檔案路徑、指令
 ❌ DON'T: 寫模糊的「繼續之前的工作」
@@ -103,7 +104,13 @@ rm -f /tmp/claude-session-namer/$PPID.default
 ⚠️ 不要把 OSC 印到 stdout — Claude Code 2.1+ 會過濾工具輸出裡的 ESC bytes。
 tab 由 `$AI_TAB_SYNC_FILE`（myclaude wrapper + watcher）同步；沒有 wrapper 時才直寫 tty device。
 
-回報格式（最後一行必須是可直接複製的單行起始 prompt，路徑用絕對路徑）：
+先從目前 checkout 的 repo root 與 handoff 的 repo-relative path 組出 `{abs_path}`，再用獨立的 shell call 驗證：
+
+```bash
+ls "{abs_path}"
+```
+
+檔案不存在時，不得輸出起始 prompt；先回報路徑錯誤並修正。驗證通過後，才用以下格式回報（最後一行必須是可直接複製的單行起始 prompt）：
 
 ```
 Handoff 已產出：{abs_path}
@@ -122,6 +129,7 @@ Branch: {current_branch}
 | 必讀檔案只列路徑 | 新 session 不知道為什麼要讀 | 每項附原因 |
 | 忘記改 terminal name | 無法辨識哪個 session 已交接 | Step 5 必做，📦 前綴 |
 | OSC 印到 stdout | Claude Code 2.1+ 過濾 ESC，永遠到不了 terminal | 寫 `$AI_TAB_SYNC_FILE` 或 tty device |
-| 路徑帶 .worktrees/ 前綴 | 新 session 不在同一個 worktree 就 404 | 一律 repo-relative |
+| 文件內部引用 worktree／絕對路徑 | 換 checkout 後連結失效 | 文件內一律用 repo-relative path |
 | 起始 prompt 重述整份交接內容 | 浪費輸出，新 session 讀檔就有 | 只給 `讀 {絕對路徑}` 一行 |
-| 起始 prompt 用相對路徑 | 新 session cwd 不同會 404 | 一律絕對路徑 |
+| 起始 prompt 用相對路徑或主 checkout 路徑 | cwd 不同，或 handoff 只存在 worktree branch 時會 404 | 用交接文件實際所在 checkout 的絕對路徑 |
+| 沒有先用 `ls` 驗證起始 prompt 路徑 | 可能把不存在的檔案交給新 session | 驗證成功後才能輸出 prompt |
